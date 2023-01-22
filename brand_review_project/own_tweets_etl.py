@@ -8,22 +8,25 @@ import tweepy as tw
 from decouple import config
 from google.cloud import storage
 
+
 logging.basicConfig(
-    filename='./brand_review_analysis/brand_review_project/logs_own_tweets_etl.log',
+    filename='C:/Users/4YouSee/Desktop/personal_work/brand_review_analysis/brand_review_project/logs_own_tweets_etl.log',
     level=logging.INFO,
     filemode='w',
     format='%(name)s - %(levelname)s - %(message)s')
 
+
 # config
-# CONSUMER_KEY = config('CONSUMER_KEY')
-# CONSUMER_SECRET = config('CONSUMER_SECRET')
-# ACCESS_TOKEN = config('ACCESS_TOKEN')
-# ACCESS_TOKEN_SECRET = config('ACCESS_TOKEN_SECRET')
 BEARER_TOKEN = config('BEARER_TOKEN')
 USER_ID = config('USER_ID')
+BUCKET_NAME = config('BUCKET_NAME')
+DESTINATION_BLOB_PATH = config('DESTINATION_BLOB_PATH')
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = config('JSON_KEY')
 
-# connect API
+
+# connect twitter API
 client = tw.Client(bearer_token=BEARER_TOKEN)
+
 
 def bring_own_tweets() -> pd.DataFrame:
     '''
@@ -59,11 +62,44 @@ def bring_own_tweets() -> pd.DataFrame:
 
     df_result = pd.DataFrame(results)
     df_result['tweet_id'] = df_result['tweet_id'].astype('str')
+    logging.info('Dataframe creation: SUCCESS')
     return df_result
+
+
+def upload_to_storage(bucket_name: str, data: pd.DataFrame, destination_blob_path: str) -> None:
+    '''
+    '''
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket(bucket_name)
+        blob = bucket.blob(destination_blob_path)
+
+        if blob.exists() is False:
+            blob.upload_from_string(data.to_parquet())
+            logging.info('Loading the NEW PARQUET FILE into the bucket: SUCCESS')
+            return None
+
+        else:
+            blob = bucket.get_blob('atletico_own_tweets.parquet')
+            blob.download_to_filename('atletico_own_tweets.parquet')
+            with open(r'data1.csv', 'a') as f:
+                writer = csv.writer(f)
+                writer.writerow(fields)
+            logging.info('Loading the NEW ROWS into the bucket: SUCCESS')
+            return None
+
+    except TypeError:
+        logging.error('Your file type does not look correct')
+        return None
+
+    except ValueError:
+        logging.error(
+            'You are performing an input or output operations on the file that is already closed')
+        return None
 
 
 if __name__ == "__main__":
     logging.info('About to start the etl step of the system')
     df_result = bring_own_tweets()
-
+    upload_to_storage(BUCKET_NAME, df_result, DESTINATION_BLOB_PATH)
     logging.info('Done executing the etl step')
