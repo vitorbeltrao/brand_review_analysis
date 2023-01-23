@@ -66,7 +66,8 @@ def bring_own_tweets() -> pd.DataFrame:
     return df_result
 
 
-def upload_to_storage(bucket_name: str, data: pd.DataFrame, destination_blob_path: str) -> None:
+def upload_to_storage(
+    bucket_name: str, data: pd.DataFrame, destination_blob_path: str) -> None:
     '''
     '''
     try:
@@ -80,11 +81,11 @@ def upload_to_storage(bucket_name: str, data: pd.DataFrame, destination_blob_pat
             return None
 
         else:
-            blob = bucket.get_blob('atletico_own_tweets.parquet')
             blob.download_to_filename('atletico_own_tweets.parquet')
-            with open(r'data1.csv', 'a') as f:
-                writer = csv.writer(f)
-                writer.writerow(fields)
+            df_temp = pd.read_parquet('atletico_own_tweets.parquet')
+            df_final = pd.concat([data, df_temp])
+            df_final.drop_duplicates(subset=['tweet_id'], keep='first', inplace=True, ignore_index=True)
+            blob.upload_from_string(data.to_parquet())
             logging.info('Loading the NEW ROWS into the bucket: SUCCESS')
             return None
 
