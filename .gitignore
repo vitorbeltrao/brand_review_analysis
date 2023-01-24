@@ -2,3 +2,5 @@ venv
 .env
 *.json
 *.parquet
+__pycache__/
+.pytest_cache/

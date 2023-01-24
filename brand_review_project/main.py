@@ -23,12 +23,15 @@ DESTINATION_BLOB_PATH = config('DESTINATION_BLOB_PATH')
 DOWNLOAD_FILE = config('DOWNLOAD_FILE')
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = config('JSON_KEY')
 
-if __name__ == "__main__":
-    logging.info('About to start the etl step of the system')
+def main():
     df_result = bring_own_tweets(BEARER_TOKEN, USER_ID)
     upload_to_storage(
         BUCKET_NAME,
         df_result,
         DESTINATION_BLOB_PATH,
         DOWNLOAD_FILE)
+
+if __name__ == "__main__":
+    logging.info('About to start the etl step of the system')
+    main()
     logging.info('Done executing the etl step')
