@@ -10,7 +10,6 @@ from bring_own_tweets import bring_own_tweets
 from upload_to_storage import upload_to_storage
 
 logging.basicConfig(
-    filename='C:/Users/4YouSee/Desktop/personal_work/brand_review_analysis/brand_review_project/logs_own_tweets_etl.log',
     level=logging.INFO,
     filemode='w',
     format='%(name)s - %(levelname)s - %(message)s')

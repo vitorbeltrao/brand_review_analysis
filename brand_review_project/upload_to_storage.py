@@ -48,7 +48,7 @@ def upload_to_storage(
                 keep='first',
                 inplace=True,
                 ignore_index=True)
-            blob.upload_from_string(data.to_parquet())
+            blob.upload_from_string(df_final.to_parquet())
             logging.info('Loading the NEW ROWS into the bucket: SUCCESS')
             return None
 
