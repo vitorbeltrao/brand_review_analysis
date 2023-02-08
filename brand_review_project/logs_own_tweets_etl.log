@@ -1,4 +1,0 @@
-root - INFO - About to start the etl step of the system
-root - INFO - Dataframe creation: SUCCESS
-root - INFO - Loading the NEW PARQUET FILE into the bucket: SUCCESS
-root - INFO - Done executing the etl step
