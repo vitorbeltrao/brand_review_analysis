@@ -8,6 +8,7 @@ File to call the twitter API and fetch the data
 import logging
 import pandas as pd
 import tweepy as tw
+from datetime import timedelta
 
 def bring_own_tweets(bearer_token: str, user_id: str) -> pd.DataFrame:
     '''Function to make a request on the twitter API and bring
@@ -56,6 +57,10 @@ def bring_own_tweets(bearer_token: str, user_id: str) -> pd.DataFrame:
         }
 
     df_result = pd.DataFrame(results)
+
+    # some transformations
     df_result['tweet_id'] = df_result['tweet_id'].astype('str')
+    df_result['date'] = pd.to_datetime(df_result['date']) - timedelta(hours=3)
+
     logging.info('Dataframe creation: SUCCESS')
     return df_result
